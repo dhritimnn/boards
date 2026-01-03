@@ -141,22 +141,25 @@
       };
 
       const completeSelection = () => {
-    if (tempSelection.length === 0) return;
-    
-    setSelectedSubjects(tempSelection);
-    setTasks(tempSelection.map(name => ({
-      subject: allSubjects.find(s => s.name === name),
-      completed: false,
-      notes: ''
-    })));
-    
-    // Close popup after state updates complete
-    requestAnimationFrame(() => {
-      setShowSelectionPopup(false);
-      setTempSelection([]);
-    });
-  };
-}
+  if (tempSelection.length === 0) return;
+  
+  // Disable pointer events to prevent double-clicks
+  const popup = document.querySelector('.fixed.inset-0');
+  if (popup) popup.style.pointerEvents = 'none';
+  
+  setSelectedSubjects(tempSelection);
+  setTasks(tempSelection.map(name => ({
+    subject: allSubjects.find(s => s.name === name),
+    completed: false,
+    notes: ''
+  })));
+  setTempSelection([]);
+  
+  // Wait for next frame before closing
+  setTimeout(() => {
+    setShowSelectionPopup(false);
+  }, 100);
+};
 
       const openEditSelection = () => {
         setTempSelection(selectedSubjects);
