@@ -7,64 +7,82 @@
   <meta name="theme-color" content="#4f46e5">
   <title>Board Exam Study Tracker</title>
   
-  <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json">
-  
-  <!-- iOS Support -->
   <link rel="apple-touch-icon" href="/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Study Tracker">
   
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Lucide Icons - Load FIRST -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-  
-  <!-- React & ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
-  <!-- Babel for JSX -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <style>
+    .icon { display: inline-block; width: 1em; height: 1em; vertical-align: middle; }
+  </style>
 </head>
 <body>
   <div id="root"></div>
   
   <script type="text/babel">
-    // Create React components from Lucide icons
-    const BookOpen = (props) => <i data-lucide="book-open" {...props}></i>;
-    const CheckCircle = (props) => <i data-lucide="check-circle" {...props}></i>;
-    const Circle = (props) => <i data-lucide="circle" {...props}></i>;
-    const Edit2 = (props) => <i data-lucide="edit-2" {...props}></i>;
-    const Star = (props) => <i data-lucide="star" {...props}></i>;
-    const Calendar = (props) => <i data-lucide="calendar" {...props}></i>;
-    const Clock = (props) => <i data-lucide="clock" {...props}></i>;
-    const BookMarked = (props) => <i data-lucide="book-marked" {...props}></i>;
-    const Sparkles = (props) => <i data-lucide="sparkles" {...props}></i>;
+    const { useState, useEffect } = React;
     
-    const { useState, useEffect, useRef } = React;
-    // Initialize Lucide icons after render
-    const useLucideIcons = () => {
-        useEffect(() => {
-          if (window.lucide) {
-            window.lucide.createIcons();
-          }
-        }, []); // Empty array is critical!
-      };
+    // Simple SVG icon components (no external library needed!)
+    const BookOpen = ({ size = 24, className = "" }) => (
+      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+    );
+    
+    const CheckCircle = ({ size = 24, className = "" }) => (
+      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
+    );
+    
+    const Circle = ({ size = 24, className = "" }) => (
+      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10"/>
+      </svg>
+    );
+    
+    const Star = ({ size = 24, className = "", fill = "none" }) => (
+      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    );
+    
+    const Edit2 = ({ size = 24, className = "" }) => (
+      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+      </svg>
+    );
+    
+    const BookMarked = ({ size = 24, className = "" }) => (
+      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        <path d="M10 2v8l3-3 3 3V2"/>
+      </svg>
+    );
+    
+    const Sparkles = ({ size = 24, className = "" }) => (
+      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/>
+        <path d="M19 12l.75 2.25L22 15l-2.25.75L19 18l-.75-2.25L16 15l2.25-.75L19 12z"/>
+        <path d="M19 3l.5 1.5L21 5l-1.5.5L19 7l-.5-1.5L17 5l1.5-.5L19 3z"/>
+      </svg>
+    );
     
     function StudyTracker() {
-      const popupRef = useRef(null);
-      // PWA Installation
       useEffect(() => {
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('/service-worker.js').catch(() => {});
         }
       }, []);
-      
-      // Initialize Lucide icons
-      useLucideIcons();
 
       const START_DATE = '2026-01-03';
       
@@ -141,28 +159,23 @@
       };
 
       const completeSelection = () => {
-  if (tempSelection.length === 0) return;
-  
-  // Disable pointer events to prevent double-clicks
-  const popup = document.querySelector('.fixed.inset-0');
-  if (popup) popup.style.pointerEvents = 'none';
-  
-  setSelectedSubjects(tempSelection);
-  setTasks(tempSelection.map(name => ({
-    subject: allSubjects.find(s => s.name === name),
-    completed: false,
-    notes: ''
-  })));
-  setTempSelection([]);
-  
-  // Wait for next frame before closing
-  setTimeout(() => {
-    setShowSelectionPopup(false);
-  }, 100);
-};
+        if (tempSelection.length === 0) return;
+        
+        const newSelectedSubjects = [...tempSelection];
+        const newTasks = tempSelection.map(name => ({
+          subject: allSubjects.find(s => s.name === name),
+          completed: false,
+          notes: ''
+        }));
+        
+        setSelectedSubjects(newSelectedSubjects);
+        setTasks(newTasks);
+        setTempSelection([]);
+        setShowSelectionPopup(false);
+      };
 
       const openEditSelection = () => {
-        setTempSelection(selectedSubjects);
+        setTempSelection([...selectedSubjects]);
         setShowSelectionPopup(true);
       };
 
@@ -269,14 +282,14 @@
                     >
                       <div className="flex items-center gap-3">
                         {tempSelection.includes(subject.name) ? (
-                          <CheckCircle className="text-indigo-600" size={24} />
+                          <CheckCircle size={24} className="text-indigo-600" />
                         ) : (
-                          <Circle className="text-gray-400" size={24} />
+                          <Circle size={24} className="text-gray-400" />
                         )}
                         <span className="font-medium text-gray-800">{subject.name}</span>
                       </div>
                       {subject.priority && (
-                        <Star className="text-yellow-500" size={18} fill="currentColor" />
+                        <Star size={18} className="text-yellow-500" fill="currentColor" />
                       )}
                     </button>
                   ))}
@@ -301,7 +314,7 @@
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                  <BookMarked className="text-indigo-600" size={28} />
+                  <BookMarked size={28} className="text-indigo-600" />
                   How Did Today Go?
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">Reflect on your day before moving forward</p>
@@ -340,7 +353,7 @@
           {showQuotePopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-8 text-center">
-                <Sparkles className="text-yellow-500 mx-auto mb-4" size={48} />
+                <Sparkles size={48} className="text-yellow-500 mx-auto mb-4" />
                 <p className="text-xl text-gray-800 mb-6 leading-relaxed italic">
                   "{currentQuote}"
                 </p>
@@ -359,7 +372,7 @@
               <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col">
                 <div className="p-6 border-b">
                   <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <BookMarked className="text-indigo-600" size={28} />
+                    <BookMarked size={28} className="text-indigo-600" />
                     Past Reflections
                   </h2>
                 </div>
@@ -439,151 +452,9 @@
             <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <BookOpen className="text-indigo-600" size={32} />
+                  <BookOpen size={32} className="text-indigo-600" />
                   <div>
                     <h1 className="text-3xl font-bold text-gray-800">Board Exam Prep</h1>
                     <p className="text-sm text-gray-600">{formatDate(getCurrentDate())}</p>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-gray-600">Day Progress</div>
-                  <div className="text-3xl font-bold text-indigo-600">
-                    {currentDay}<span className="text-xl text-gray-400">/20</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all"
-                    style={{ width: `${(currentDay / 20) * 100}%` }}
-                  />
-                </div>
-                <div className="flex justify-between mt-2 text-xs text-gray-500">
-                  <span>Day 1</span>
-                  <span>Day 20</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-semibold text-gray-800">Today's Study Tasks</h2>
-                  {totalCount > 0 && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      {completedCount} of {totalCount} completed
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowReflectionsPopup(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-all"
-                  >
-                    <BookMarked size={18} />
-                    View Reflections
-                  </button>
-                  <button
-                    onClick={openEditSelection}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all"
-                  >
-                    <Edit2 size={18} />
-                    Edit
-                  </button>
-                </div>
-              </div>
-
-              {tasks.length === 0 ? (
-                <div className="text-center py-16">
-                  <Calendar className="mx-auto mb-4 text-gray-300" size={64} />
-                  <p className="text-gray-500 text-lg mb-2">No subjects selected yet</p>
-                  <p className="text-gray-400 text-sm mb-4">Click "Edit" to choose today's subjects</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {tasks.map(task => (
-                    <div 
-                      key={task.subject.name}
-                      className={`border-2 rounded-lg p-4 transition-all ${
-                        task.completed 
-                          ? 'border-green-300 bg-green-50' 
-                          : 'border-gray-200 hover:border-indigo-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <button
-                          onClick={() => toggleTask(task.subject.name)}
-                          className="flex-shrink-0"
-                        >
-                          {task.completed ? (
-                            <CheckCircle className="text-green-600" size={28} />
-                          ) : (
-                            <Circle className="text-gray-400 hover:text-indigo-600" size={28} />
-                          )}
-                        </button>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-lg font-semibold ${
-                              task.completed ? 'text-gray-500 line-through' : 'text-gray-800'
-                            }`}>
-                              {task.subject.name}
-                            </span>
-                            {task.subject.priority && (
-                              <Star className="text-yellow-500" size={16} fill="currentColor" />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="ml-10">
-                        <textarea
-                          value={task.notes}
-                          onChange={(e) => updateNotes(task.subject.name, e.target.value)}
-                          placeholder="What will you study? (e.g., Chapter 4, Quadratic Equations)"
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                          rows="2"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {totalCount > 0 && (
-                <div className="mt-6 pt-6 border-t">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Today's Progress</span>
-                    <span className="text-sm font-bold text-indigo-600">
-                      {Math.round((completedCount / totalCount) * 100)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all"
-                      style={{ width: `${(completedCount / totalCount) * 100}%` }}
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleEndDay}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all"
-                  >
-                    <Clock size={20} />
-                    End Day & Reflect
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Render the app
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<StudyTracker />);
-  </script>
-</body>
-</html>
+                
