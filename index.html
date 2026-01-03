@@ -16,89 +16,45 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Study Tracker">
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons - Load FIRST -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   
   <!-- React & ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   
-  <!-- Babel -->
+  <!-- Babel for JSX -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
   <div id="root"></div>
   
   <script type="text/babel">
+    // Create React components from Lucide icons
+    const BookOpen = (props) => <i data-lucide="book-open" {...props}></i>;
+    const CheckCircle = (props) => <i data-lucide="check-circle" {...props}></i>;
+    const Circle = (props) => <i data-lucide="circle" {...props}></i>;
+    const Edit2 = (props) => <i data-lucide="edit-2" {...props}></i>;
+    const Star = (props) => <i data-lucide="star" {...props}></i>;
+    const Calendar = (props) => <i data-lucide="calendar" {...props}></i>;
+    const Clock = (props) => <i data-lucide="clock" {...props}></i>;
+    const BookMarked = (props) => <i data-lucide="book-marked" {...props}></i>;
+    const Sparkles = (props) => <i data-lucide="sparkles" {...props}></i>;
+    
     const { useState, useEffect } = React;
     
-    // Simple icon components using SVG
-    const BookOpen = ({ size = 24, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-      </svg>
-    );
+    // Initialize Lucide icons after render
+    const useLucideIcons = () => {
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+    };
     
-    const CheckCircle = ({ size = 24, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-      </svg>
-    );
-    
-    const Circle = ({ size = 24, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <circle cx="12" cy="12" r="10"></circle>
-      </svg>
-    );
-    
-    const Edit2 = ({ size = 24, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-      </svg>
-    );
-    
-    const Star = ({ size = 24, className = "", fill = "none" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-      </svg>
-    );
-    
-    const Calendar = ({ size = 24, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-        <line x1="16" y1="2" x2="16" y2="6"></line>
-        <line x1="8" y1="2" x2="8" y2="6"></line>
-        <line x1="3" y1="10" x2="21" y2="10"></line>
-      </svg>
-    );
-    
-    const Clock = ({ size = 24, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <circle cx="12" cy="12" r="10"></circle>
-        <polyline points="12 6 12 12 16 14"></polyline>
-      </svg>
-    );
-    
-    const BookMarked = ({ size = 24, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        <path d="M10 2v8l3-3 3 3V2"></path>
-      </svg>
-    );
-    
-    const Sparkles = ({ size = 24, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
-        <path d="M5 3v4"></path>
-        <path d="M19 17v4"></path>
-        <path d="M3 5h4"></path>
-        <path d="M17 19h4"></path>
-      </svg>
-    );
-
     function StudyTracker() {
       // PWA Installation
       useEffect(() => {
@@ -106,6 +62,9 @@
           navigator.serviceWorker.register('/service-worker.js').catch(() => {});
         }
       }, []);
+      
+      // Initialize Lucide icons
+      useLucideIcons();
 
       const START_DATE = '2026-01-03';
       
@@ -171,7 +130,7 @@
           setTasks([]);
           setCurrentDay(getCurrentDay());
         }
-      }, [lastVisitDate]);
+      }, []);
 
       const toggleTempSelection = (subjectName) => {
         setTempSelection(prev => 
@@ -283,7 +242,6 @@
 
       return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-          {/* Selection Popup */}
           {showSelectionPopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
@@ -303,14 +261,14 @@
                     >
                       <div className="flex items-center gap-3">
                         {tempSelection.includes(subject.name) ? (
-                          <CheckCircle size={24} className="text-indigo-600" />
+                          <CheckCircle className="text-indigo-600" size={24} />
                         ) : (
-                          <Circle size={24} className="text-gray-400" />
+                          <Circle className="text-gray-400" size={24} />
                         )}
                         <span className="font-medium text-gray-800">{subject.name}</span>
                       </div>
                       {subject.priority && (
-                        <Star size={18} className="text-yellow-500" fill="currentColor" />
+                        <Star className="text-yellow-500" size={18} fill="currentColor" />
                       )}
                     </button>
                   ))}
@@ -331,12 +289,11 @@
             </div>
           )}
 
-          {/* End Day Popup */}
           {showEndDayPopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                  <BookMarked size={28} className="text-indigo-600" />
+                  <BookMarked className="text-indigo-600" size={28} />
                   How Did Today Go?
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">Reflect on your day before moving forward</p>
@@ -372,13 +329,12 @@
             </div>
           )}
 
-          {/* Quote Popup */}
           {showQuotePopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-8 text-center">
-                <Sparkles size={48} className="text-yellow-500 mx-auto mb-4" />
+                <Sparkles className="text-yellow-500 mx-auto mb-4" size={48} />
                 <p className="text-xl text-gray-800 mb-6 leading-relaxed italic">
-                  {currentQuote}
+                  "{currentQuote}"
                 </p>
                 <button
                   onClick={closeQuoteAndReset}
@@ -390,13 +346,12 @@
             </div>
           )}
 
-          {/* Reflections Popup */}
           {showReflectionsPopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col">
                 <div className="p-6 border-b">
                   <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <BookMarked size={28} className="text-indigo-600" />
+                    <BookMarked className="text-indigo-600" size={28} />
                     Past Reflections
                   </h2>
                 </div>
@@ -415,27 +370,45 @@
                           <div className="flex items-center justify-between mb-3">
                             <div>
                               <h3 className="font-bold text-lg text-gray-800">Day {ref.day}</h3>
-                              <p className="text-sm text-gray-500">{formatShortDate(ref.date)}</p>
+                              <p className="text-sm text-gray-600">{formatShortDate(ref.date)}</p>
                             </div>
                           </div>
-                          <p className="text-gray-700 mb-4 italic">"{ref.reflection}"</p>
-                          <div className="space-y-2">
-                            {ref.subjects.map((subj, i) => (
-                              <div key={i} className="flex items-center gap-2 text-sm">
-                                {subj.completed ? (
-                                  <CheckCircle size={16} className="text-green-600" />
-                                ) : (
-                                  <Circle size={16} className="text-gray-400" />
-                                )}
-                                <span className={subj.completed ? 'text-gray-800' : 'text-gray-500'}>
-                                  {subj.name}
+                          
+                          <div className="mb-3">
+                            <p className="text-sm font-semibold text-gray-700 mb-2">Subjects Studied:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {ref.subjects.map(subj => (
+                                <span
+                                  key={subj.name}
+                                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                    subj.completed
+                                      ? 'bg-green-100 text-green-700'
+                                      : 'bg-gray-200 text-gray-600'
+                                  }`}
+                                >
+                                  {subj.name} {subj.completed && '✓'}
                                 </span>
-                                {subj.notes && (
-                                  <span className="text-gray-400 text-xs">- {subj.notes}</span>
-                                )}
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
+                          
+                          <div>
+                            <p className="text-sm font-semibold text-gray-700 mb-2">Reflection:</p>
+                            <p className="text-gray-700 whitespace-pre-wrap">{ref.reflection}</p>
+                          </div>
+                          
+                          {ref.subjects.some(s => s.notes) && (
+                            <div className="mt-3 pt-3 border-t">
+                              <p className="text-sm font-semibold text-gray-700 mb-2">Study Notes:</p>
+                              <div className="space-y-1">
+                                {ref.subjects.filter(s => s.notes).map(subj => (
+                                  <p key={subj.name} className="text-sm text-gray-600">
+                                    <span className="font-medium">{subj.name}:</span> {subj.notes}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -454,7 +427,44 @@
             </div>
           )}
 
-          {/* Main Content */}
           <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div classN
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="text-indigo-600" size={32} />
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-800">Board Exam Prep</h1>
+                    <p className="text-sm text-gray-600">{formatDate(getCurrentDate())}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-gray-600">Day Progress</div>
+                  <div className="text-3xl font-bold text-indigo-600">
+                    {currentDay}<span className="text-xl text-gray-400">/20</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all"
+                    style={{ width: `${(currentDay / 20) * 100}%` }}
+                  />
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-gray-500">
+                  <span>Day 1</span>
+                  <span>Day 20</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-800">Today's Study Tasks</h2>
+                  {totalCount > 0 && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {completedCount} of {totalCount} completed
+                    </p>
+         
