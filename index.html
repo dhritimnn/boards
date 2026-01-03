@@ -44,18 +44,18 @@
     const BookMarked = (props) => <i data-lucide="book-marked" {...props}></i>;
     const Sparkles = (props) => <i data-lucide="sparkles" {...props}></i>;
     
-    const { useState, useEffect } = React;
-    
+    const { useState, useEffect, useRef } = React;
     // Initialize Lucide icons after render
     const useLucideIcons = () => {
-  useEffect(() => {
-    if (window.lucide) {
-      window.lucide.createIcons();
-    }
-  }, []); // <-- Add this empty array!
-};
+        useEffect(() => {
+          if (window.lucide) {
+            window.lucide.createIcons();
+          }
+        }, []); // Empty array is critical!
+      };
     
     function StudyTracker() {
+      const popupRef = useRef(null);
       // PWA Installation
       useEffect(() => {
         if ('serviceWorker' in navigator) {
@@ -141,17 +141,22 @@
       };
 
       const completeSelection = () => {
-        if (tempSelection.length === 0) return;
-        
-        setSelectedSubjects(tempSelection);
-        setTasks(tempSelection.map(name => ({
-          subject: allSubjects.find(s => s.name === name),
-          completed: false,
-          notes: ''
-        })));
-        setShowSelectionPopup(false);
-        setTempSelection([]);
-      };
+    if (tempSelection.length === 0) return;
+    
+    setSelectedSubjects(tempSelection);
+    setTasks(tempSelection.map(name => ({
+      subject: allSubjects.find(s => s.name === name),
+      completed: false,
+      notes: ''
+    })));
+    
+    // Close popup after state updates complete
+    requestAnimationFrame(() => {
+      setShowSelectionPopup(false);
+      setTempSelection([]);
+    });
+  };
+}
 
       const openEditSelection = () => {
         setTempSelection(selectedSubjects);
