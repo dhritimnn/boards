@@ -446,4 +446,30 @@
                                   <p key={subj.name} className="text-sm text-gray-600">
                                     <span className="font-medium">{subj.name}:</span> {subj.notes}
                                   </p>
-    
+    </div>
+                  ))}
+                </div>
+              </div>
+                
+              <div className="p-6 border-t">
+                <button
+                  onClick={() => setShowReflectionsPopup(false)}
+                  className="w-full py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Main App UI goes here... */}
+          
+        </div>
+      );
+    }
+
+    // Render the app
+    ReactDOM.render(<StudyTracker />, document.getElementById('root'));
+  </script>
+</body>
+</html>
