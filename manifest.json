@@ -2,7 +2,7 @@
   "name": "Board Exam Study Tracker",
   "short_name": "Study Tracker",
   "description": "Track your 20-day board exam preparation",
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
