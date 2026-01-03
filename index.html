@@ -283,6 +283,7 @@
 
       return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+          {/* Selection Popup */}
           {showSelectionPopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
@@ -330,6 +331,7 @@
             </div>
           )}
 
+          {/* End Day Popup */}
           {showEndDayPopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6">
@@ -370,12 +372,13 @@
             </div>
           )}
 
+          {/* Quote Popup */}
           {showQuotePopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-8 text-center">
                 <Sparkles size={48} className="text-yellow-500 mx-auto mb-4" />
                 <p className="text-xl text-gray-800 mb-6 leading-relaxed italic">
-                  "{currentQuote}"
+                  {currentQuote}
                 </p>
                 <button
                   onClick={closeQuoteAndReset}
@@ -387,6 +390,7 @@
             </div>
           )}
 
+          {/* Reflections Popup */}
           {showReflectionsPopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col">
@@ -411,65 +415,46 @@
                           <div className="flex items-center justify-between mb-3">
                             <div>
                               <h3 className="font-bold text-lg text-gray-800">Day {ref.day}</h3>
-                              <p className="text-sm text-gray-600">{formatShortDate(ref.date)}</p>
+                              <p className="text-sm text-gray-500">{formatShortDate(ref.date)}</p>
                             </div>
                           </div>
-                          
-                          <div className="mb-3">
-                            <p className="text-sm font-semibold text-gray-700 mb-2">Subjects Studied:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {ref.subjects.map(subj => (
-                                <span
-                                  key={subj.name}
-                                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                    subj.completed
-                                      ? 'bg-green-100 text-green-700'
-                                      : 'bg-gray-200 text-gray-600'
-                                  }`}
-                                >
-                                  {subj.name} {subj.completed && '✓'}
+                          <p className="text-gray-700 mb-4 italic">"{ref.reflection}"</p>
+                          <div className="space-y-2">
+                            {ref.subjects.map((subj, i) => (
+                              <div key={i} className="flex items-center gap-2 text-sm">
+                                {subj.completed ? (
+                                  <CheckCircle size={16} className="text-green-600" />
+                                ) : (
+                                  <Circle size={16} className="text-gray-400" />
+                                )}
+                                <span className={subj.completed ? 'text-gray-800' : 'text-gray-500'}>
+                                  {subj.name}
                                 </span>
-                              ))}
-                            </div>
+                                {subj.notes && (
+                                  <span className="text-gray-400 text-xs">- {subj.notes}</span>
+                                )}
+                              </div>
+                            ))}
                           </div>
-                          
-                          <div>
-                            <p className="text-sm font-semibold text-gray-700 mb-2">Reflection:</p>
-                            <p className="text-gray-700 whitespace-pre-wrap">{ref.reflection}</p>
-                          </div>
-                          
-                          {ref.subjects.some(s => s.notes) && (
-                            <div className="mt-3 pt-3 border-t">
-                              <p className="text-sm font-semibold text-gray-700 mb-2">Study Notes:</p>
-                              <div className="space-y-1">
-                                {ref.subjects.filter(s => s.notes).map(subj => (
-                                  <p key={subj.name} className="text-sm text-gray-600">
-                                    <span className="font-medium">{subj.name}:</span> {subj.notes}
-                                  </p>
-    </div>
-                  ))}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
                 
-              <div className="p-6 border-t">
-                <button
-                  onClick={() => setShowReflectionsPopup(false)}
-                  className="w-full py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-all"
-                >
-                  Close
-                </button>
+                <div className="p-6 border-t">
+                  <button
+                    onClick={() => setShowReflectionsPopup(false)}
+                    className="w-full py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-all"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Main App UI goes here... */}
-          
-        </div>
-      );
-    }
-
-    // Render the app
-    ReactDOM.render(<StudyTracker />, document.getElementById('root'));
-  </script>
-</body>
-</html>
+          {/* Main Content */}
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div classN
