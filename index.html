@@ -48,12 +48,12 @@
     
     // Initialize Lucide icons after render
     const useLucideIcons = () => {
-      useEffect(() => {
-        if (window.lucide) {
-          window.lucide.createIcons();
-        }
-      });
-    };
+  useEffect(() => {
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }, []); // <-- Add this empty array!
+};
     
     function StudyTracker() {
       // PWA Installation
