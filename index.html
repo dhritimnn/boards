@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Board Exam Study Tracker</title>
+
+  <meta name="theme-color" content="#4f46e5" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body class="bg-indigo-50">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function App() {
+      // --- Service Worker ---
+      useEffect(() => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/service-worker.js');
+        }
+      }, []);
+
+      // --- State ---
+      const [day, setDay] = useState(() =>
+        Number(localStorage.getItem('currentDay')) || 1
+      );
+
+      const [subjects, setSubjects] = useState([]);
+      const [reflection, setReflection] = useState('');
+      const [reflections, setReflections] = useState(() =>
+        JSON.parse(localStorage.getItem('reflections') || '[]')
+      );
+
+      const allSubjects = [
+        'Assamese',
+        'English',
+        'Maths',
+        'Science',
+        'Social Studies',
+        'Elective'
+      ];
+
+      const quotes = [
+        "Small steps every day lead to big success 🌱",
+        "Consistency beats motivation 💪",
+        "You’re closer than you think 🎯",
+        "Discipline today, freedom tomorrow 🚀"
+      ];
+
+      // --- Actions ---
+      const toggleSubject = name => {
+        setSubjects(prev =>
+          prev.some(s => s.name === name)
+            ? prev.filter(s => s.name !== name)
+            : [...prev, { name, done: false, notes: '' }]
+        );
+      };
+
+      const toggleDone = name => {
+        setSubjects(prev =>
+          prev.map(s =>
+            s.name === name ? { ...s, done: !s.done } : s
+          )
+        );
+      };
+
+      const updateNotes = (name, value) => {
+        setSubjects(prev =>
+          prev.map(s =>
+            s.name === name ? { ...s, notes: value } : s
+          )
+        );
+      };
+
+      const endDay = () => {
+        if (!reflection.trim()) return;
+
+        const entry = {
+          day,
+          date: new Date().toISOString(),
+          subjects,
+          reflection
+        };
+
+        const updated = [...reflections, entry];
+        setReflections(updated);
+        localStorage.setItem('reflections', JSON.stringify(updated));
+
+        const nextDay = Math.min(day + 1, 20);
+        setDay(nextDay);
+        localStorage.setItem('currentDay', nextDay);
+
+        alert(quotes[Math.floor(Math.random() * quotes.length)]);
+
+        setSubjects([]);
+        setReflection('');
+      };
+
+      // --- UI ---
+      return (
+        <div className="p-4 max-w-2xl mx-auto">
+          <h1 className="text-2xl font-bold text-indigo-700">
+            Day {day} / 20
+          </h1>
+
+          <div className="mt-4 bg-white p-4 rounded shadow">
+            <h2 className="font-semibold mb-2">Select Subjects</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {allSubjects.map(s => (
+                <button
+                  key={s}
+                  onClick={() => toggleSubject(s)}
+                  className={`p-2 rounded border ${
+                    subjects.some(x => x.name === s)
+                      ? 'bg-indigo-100 border-indigo-500'
+                      : 'border-gray-300'
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {subjects.length > 0 && (
+            <div className="mt-4 bg-white p-4 rounded shadow">
+              <h2 className="font-semibold mb-2">Today's Work</h2>
+
+              {subjects.map(s => (
+                <div key={s.name} className="mb-3">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={s.done}
+                      onChange={() => toggleDone(s.name)}
+                    />
+                    <span className={s.done ? 'line-through' : ''}>
+                      {s.name}
+                    </span>
+                  </label>
+                  <textarea
+                    className="w-full border rounded p-2 text-sm mt-1"
+                    placeholder="Notes..."
+                    value={s.notes}
+                    onChange={e => updateNotes(s.name, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4 bg-white p-4 rounded shadow">
+            <h2 className="font-semibold mb-2">Reflection</h2>
+            <textarea
+              className="w-full border rounded p-2"
+              rows="4"
+              value={reflection}
+              onChange={e => setReflection(e.target.value)}
+              placeholder="How did today go?"
+            />
+            <button
+              onClick={endDay}
+              className="mt-3 w-full bg-indigo-600 text-white py-2 rounded"
+            >
+              End Day
+            </button>
+          </div>
+
+          <div className="mt-6">
+            <h2 className="font-semibold mb-2">Past Reflections</h2>
+            {reflections.map(r => (
+              <div key={r.date} className="bg-white p-3 mb-2 rounded shadow">
+                <p className="font-bold">Day {r.day}</p>
+                <p className="text-sm">{r.reflection}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
