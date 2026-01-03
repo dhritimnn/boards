@@ -1,7 +1,10 @@
 const CACHE_NAME = 'study-tracker-v1';
 const urlsToCache = [
   '/',
-  '/index.html'
+  '/index.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 // Install service worker
