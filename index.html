@@ -105,7 +105,7 @@
 
         <!-- Subject Selection Section -->
         <div class="bg-white rounded-lg shadow-md mb-4">
-            <div class="p-4 flex justify-between items-center cursor-pointer" onclick="toggleSubjectSection()">
+            <div class="p-4 flex justify-between items-center cursor-pointer" id="subjectHeader">
                 <h2 class="text-xl font-semibold text-gray-800">Subject Selection</h2>
                 <button class="text-blue-600 hover:text-blue-800">
                     <i class="bi bi-pencil-square text-xl"></i>
@@ -138,7 +138,7 @@
                         <label for="sub-elective" class="text-gray-700 cursor-pointer flex-1">Elective</label>
                     </div>
                 </div>
-                <button onclick="completeSelection()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold">
+                <button id="completeSelectionBtn" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold">
                     Complete Selection
                 </button>
             </div>
@@ -159,13 +159,13 @@
         </div>
 
         <!-- End the Day Button -->
-        <button onclick="showEndDayPopup()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition shadow-md mb-4 text-lg font-semibold">
+        <button id="endDayBtn" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition shadow-md mb-4 text-lg font-semibold">
             End the Day
         </button>
 
         <!-- Previous Days Section -->
         <div class="bg-white rounded-lg shadow-md">
-            <div class="p-4 flex justify-between items-center cursor-pointer" onclick="togglePreviousDays()">
+            <div class="p-4 flex justify-between items-center cursor-pointer" id="previousDaysHeader">
                 <h2 class="text-lg font-semibold text-gray-800">See Previous Days</h2>
                 <i id="prevDaysIcon" class="bi bi-chevron-down text-xl"></i>
             </div>
@@ -180,7 +180,7 @@
         <div class="bg-white rounded-lg max-w-md w-full p-6">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-2xl font-bold text-gray-800">How it went?</h3>
-                <button onclick="closeEndDayPopup()" class="text-gray-500 hover:text-gray-700">
+                <button id="closePopupBtn" class="text-gray-500 hover:text-gray-700">
                     <i class="bi bi-x-lg text-2xl"></i>
                 </button>
             </div>
@@ -188,42 +188,56 @@
                 <p id="dailyQuote" class="text-gray-700 italic"></p>
             </div>
             <textarea id="reflectionText" placeholder="Write your thoughts about today..." class="w-full border border-gray-300 rounded-lg p-3 mb-4 h-32 resize-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"></textarea>
-            <button onclick="submitEndDay()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">
+            <button id="submitEndDayBtn" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">
                 Submit
             </button>
         </div>
     </div>
 
     <script>
-        const quotes = [
-            "Success is the sum of small efforts repeated day in and day out.",
-            "The expert in anything was once a beginner.",
-            "Study while others are sleeping; work while others are loafing.",
-            "Education is the passport to the future.",
-            "The beautiful thing about learning is that no one can take it away from you.",
-            "Don't watch the clock; do what it does. Keep going."
-        ];
+        // Global variables and app state
+        const AppState = {
+            quotes: [
+                "Success is the sum of small efforts repeated day in and day out.",
+                "The expert in anything was once a beginner.",
+                "Study while others are sleeping; work while others are loafing.",
+                "Education is the passport to the future.",
+                "The beautiful thing about learning is that no one can take it away from you.",
+                "Don't watch the clock; do what it does. Keep going."
+            ],
+            tdata: {},
+            mdata: []
+        };
 
-        let tdata = {};
-        let mdata = [];
-
-        function init() {
+        // Initialize app
+        function initApp() {
             loadData();
             updateUI();
             loadPreviousDays();
+            attachEventListeners();
+        }
+
+        // Attach all event listeners
+        function attachEventListeners() {
+            document.getElementById('subjectHeader').addEventListener('click', toggleSubjectSection);
+            document.getElementById('completeSelectionBtn').addEventListener('click', completeSelection);
+            document.getElementById('endDayBtn').addEventListener('click', showEndDayPopup);
+            document.getElementById('previousDaysHeader').addEventListener('click', togglePreviousDays);
+            document.getElementById('closePopupBtn').addEventListener('click', closeEndDayPopup);
+            document.getElementById('submitEndDayBtn').addEventListener('click', submitEndDay);
         }
 
         function loadData() {
             const today = new Date().toDateString();
-            tdata = JSON.parse(localStorage.getItem('tdata') || '{}');
-            mdata = JSON.parse(localStorage.getItem('mdata') || '[]');
+            AppState.tdata = JSON.parse(localStorage.getItem('tdata') || '{}');
+            AppState.mdata = JSON.parse(localStorage.getItem('mdata') || '[]');
 
-            if (tdata.date !== today) {
-                const newDay = Math.min((tdata.day || 0) + 1, 20);
-                tdata = {
+            if (AppState.tdata.date !== today) {
+                const newDay = Math.min((AppState.tdata.day || 0) + 1, 20);
+                AppState.tdata = {
                     date: today,
                     day: newDay,
-                    subjects: tdata.subjects || [],
+                    subjects: AppState.tdata.subjects || [],
                     tasks: []
                 };
                 saveTData();
@@ -231,17 +245,17 @@
         }
 
         function saveTData() {
-            localStorage.setItem('tdata', JSON.stringify(tdata));
+            localStorage.setItem('tdata', JSON.stringify(AppState.tdata));
         }
 
         function updateUI() {
-            document.getElementById('currentDay').textContent = tdata.day || 1;
-            const progress = ((tdata.day || 1) / 20) * 100;
+            document.getElementById('currentDay').textContent = AppState.tdata.day || 1;
+            const progress = ((AppState.tdata.day || 1) / 20) * 100;
             document.getElementById('dayProgress').style.width = progress + '%';
 
             const checkboxes = document.querySelectorAll('#subjectSection input[type="checkbox"]');
             checkboxes.forEach(cb => {
-                cb.checked = tdata.subjects.includes(cb.value);
+                cb.checked = AppState.tdata.subjects.includes(cb.value);
             });
 
             renderTasks();
@@ -255,9 +269,9 @@
 
         function completeSelection() {
             const checkboxes = document.querySelectorAll('#subjectSection input[type="checkbox"]:checked');
-            tdata.subjects = Array.from(checkboxes).map(cb => cb.value);
+            AppState.tdata.subjects = Array.from(checkboxes).map(cb => cb.value);
             
-            tdata.tasks = tdata.subjects.map(subject => ({
+            AppState.tdata.tasks = AppState.tdata.subjects.map(subject => ({
                 id: Date.now() + Math.random(),
                 subject: subject,
                 completed: false,
@@ -273,47 +287,80 @@
         function renderTasks() {
             const taskList = document.getElementById('taskList');
             
-            if (!tdata.tasks || tdata.tasks.length === 0) {
+            if (!AppState.tdata.tasks || AppState.tdata.tasks.length === 0) {
                 taskList.innerHTML = '<p class="text-gray-500 text-center py-4">Please select subjects first</p>';
                 return;
             }
 
-            taskList.innerHTML = tdata.tasks.map(task => `
+            taskList.innerHTML = AppState.tdata.tasks.map(task => `
                 <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
                     <div class="flex items-start gap-3">
                         <input type="checkbox" ${task.completed ? 'checked' : ''} 
-                               onchange="toggleTask(${task.id})"
-                               class="custom-checkbox mt-1">
+                               data-task-id="${task.id}"
+                               class="custom-checkbox task-checkbox mt-1">
                         <div class="flex-1">
                             <label class="text-lg font-semibold text-gray-800 cursor-pointer ${task.completed ? 'line-through text-gray-500' : ''}">${task.subject}</label>
                             <div class="mt-3 space-y-2" id="subtasks-${task.id}">
                                 ${task.subtasks.map(st => `
                                     <div class="flex items-center gap-3 ml-4 p-2 rounded hover:bg-gray-50 transition">
                                         <input type="checkbox" ${st.completed ? 'checked' : ''} 
-                                               onchange="toggleSubtask(${task.id}, ${st.id})"
-                                               class="custom-checkbox-sm">
+                                               data-task-id="${task.id}"
+                                               data-subtask-id="${st.id}"
+                                               class="custom-checkbox-sm subtask-checkbox">
                                         <span class="text-gray-700 flex-1 ${st.completed ? 'line-through text-gray-500' : ''}">${st.name}</span>
-                                        <button onclick="deleteSubtask(${task.id}, ${st.id})" class="text-red-500 hover:text-red-700 p-1">
+                                        <button data-task-id="${task.id}" data-subtask-id="${st.id}" class="delete-subtask-btn text-red-500 hover:text-red-700 p-1">
                                             <i class="bi bi-trash text-sm"></i>
                                         </button>
                                     </div>
                                 `).join('')}
                             </div>
-                            <button onclick="addSubtask(${task.id})" class="mt-3 ml-4 text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 font-medium">
+                            <button data-task-id="${task.id}" class="add-subtask-btn mt-3 ml-4 text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 font-medium">
                                 <i class="bi bi-plus-circle"></i> Add Subtask
                             </button>
                         </div>
                     </div>
                 </div>
             `).join('');
+
+            // Attach task-specific event listeners
+            attachTaskEventListeners();
+        }
+
+        function attachTaskEventListeners() {
+            // Task checkboxes
+            document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    toggleTask(parseFloat(this.dataset.taskId));
+                });
+            });
+
+            // Subtask checkboxes
+            document.querySelectorAll('.subtask-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    toggleSubtask(parseFloat(this.dataset.taskId), parseFloat(this.dataset.subtaskId));
+                });
+            });
+
+            // Add subtask buttons
+            document.querySelectorAll('.add-subtask-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    addSubtask(parseFloat(this.dataset.taskId));
+                });
+            });
+
+            // Delete subtask buttons
+            document.querySelectorAll('.delete-subtask-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    deleteSubtask(parseFloat(this.dataset.taskId), parseFloat(this.dataset.subtaskId));
+                });
+            });
         }
 
         function toggleTask(taskId) {
-            const task = tdata.tasks.find(t => t.id === taskId);
+            const task = AppState.tdata.tasks.find(t => t.id === taskId);
             if (task) {
                 task.completed = !task.completed;
                 
-                // If task is checked, check all subtasks
                 if (task.completed) {
                     task.subtasks.forEach(st => st.completed = true);
                 }
@@ -327,7 +374,7 @@
         function addSubtask(taskId) {
             const name = prompt('Enter subtask name:');
             if (name && name.trim()) {
-                const task = tdata.tasks.find(t => t.id === taskId);
+                const task = AppState.tdata.tasks.find(t => t.id === taskId);
                 if (task) {
                     task.subtasks.push({
                         id: Date.now() + Math.random(),
@@ -342,21 +389,18 @@
         }
 
         function toggleSubtask(taskId, subtaskId) {
-            const task = tdata.tasks.find(t => t.id === taskId);
+            const task = AppState.tdata.tasks.find(t => t.id === taskId);
             if (task) {
                 const subtask = task.subtasks.find(st => st.id === subtaskId);
                 if (subtask) {
                     subtask.completed = !subtask.completed;
                     
-                    // Check if all subtasks are completed
                     const allSubtasksCompleted = task.subtasks.every(st => st.completed);
                     
-                    // If all subtasks are completed, check the main task
                     if (allSubtasksCompleted && task.subtasks.length > 0) {
                         task.completed = true;
                     }
                     
-                    // If a subtask is unchecked, uncheck the main task
                     if (!subtask.completed) {
                         task.completed = false;
                     }
@@ -369,7 +413,7 @@
         }
 
         function deleteSubtask(taskId, subtaskId) {
-            const task = tdata.tasks.find(t => t.id === taskId);
+            const task = AppState.tdata.tasks.find(t => t.id === taskId);
             if (task) {
                 task.subtasks = task.subtasks.filter(st => st.id !== subtaskId);
                 saveTData();
@@ -379,24 +423,22 @@
         }
 
         function updateTaskProgress() {
-            if (!tdata.tasks || tdata.tasks.length === 0) {
+            if (!AppState.tdata.tasks || AppState.tdata.tasks.length === 0) {
                 document.getElementById('taskProgress').style.width = '0%';
                 document.getElementById('progressText').textContent = '0%';
                 return;
             }
 
-            const totalSubjects = tdata.tasks.length;
+            const totalSubjects = AppState.tdata.tasks.length;
             const percentPerSubject = 100 / totalSubjects;
             let totalProgress = 0;
 
-            tdata.tasks.forEach(task => {
+            AppState.tdata.tasks.forEach(task => {
                 if (task.subtasks.length === 0) {
-                    // No subtasks - main task counts as full subject progress
                     if (task.completed) {
                         totalProgress += percentPerSubject;
                     }
                 } else {
-                    // Has subtasks - each subtask counts equally within this subject
                     const percentPerSubtask = percentPerSubject / task.subtasks.length;
                     task.subtasks.forEach(st => {
                         if (st.completed) {
@@ -411,56 +453,4 @@
             document.getElementById('progressText').textContent = finalProgress + '%';
         }
 
-        function showEndDayPopup() {
-            document.getElementById('endDayPopup').classList.remove('hidden');
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            document.getElementById('dailyQuote').textContent = randomQuote;
-        }
-
-        function closeEndDayPopup() {
-            document.getElementById('endDayPopup').classList.add('hidden');
-            document.getElementById('reflectionText').value = '';
-        }
-
-        function submitEndDay() {
-            const reflection = document.getElementById('reflectionText').value;
-            const quote = document.getElementById('dailyQuote').textContent;
-
-            const progress = parseInt(document.getElementById('progressText').textContent);
-
-            const dayData = {
-                date: tdata.date,
-                day: tdata.day,
-                tasks: tdata.tasks.map(task => ({
-                    subject: task.subject,
-                    completed: task.completed,
-                    subtasks: task.subtasks
-                })),
-                progress: progress,
-                reflection: reflection,
-                quote: quote
-            };
-
-            mdata.push(dayData);
-            localStorage.setItem('mdata', JSON.stringify(mdata));
-
-            closeEndDayPopup();
-            loadPreviousDays();
-            alert('Day saved successfully!');
-        }
-
-        function togglePreviousDays() {
-            const content = document.getElementById('previousDaysContent');
-            const icon = document.getElementById('prevDaysIcon');
-            content.classList.toggle('hidden');
-            icon.classList.toggle('bi-chevron-down');
-            icon.classList.toggle('bi-chevron-up');
-        }
-
-        function loadPreviousDays() {
-            const container = document.getElementById('previousDaysList');
-            
-            if (mdata.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-4">No previous days recorded yet</p>';
-                return;
-          
+        function sh
