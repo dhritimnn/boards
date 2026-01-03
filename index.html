@@ -1,587 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Track your 20-day board exam preparation">
-  <meta name="theme-color" content="#4f46e5">
-  <title>Board Exam Study Tracker</title>
-  
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Study Tracker">
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <style>
-    .icon { display: inline-block; width: 1em; height: 1em; vertical-align: middle; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boards Exam Prep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <style>
+        /* Custom Checkbox Styles */
+        .custom-checkbox {
+            appearance: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .custom-checkbox:hover {
+            border-color: #3b82f6;
+        }
+        
+        .custom-checkbox:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 0.45rem;
+            top: 0.2rem;
+            width: 0.35rem;
+            height: 0.65rem;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .custom-checkbox-sm {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .custom-checkbox-sm:checked::after {
+            left: 0.35rem;
+            top: 0.15rem;
+            width: 0.3rem;
+            height: 0.55rem;
+        }
+
+        .subject-checkbox {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .subject-checkbox:hover {
+            border-color: #8b5cf6;
+        }
+
+        .subject-checkbox:checked {
+            background-color: #8b5cf6;
+            border-color: #8b5cf6;
+        }
+
+        .subject-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 0.35rem;
+            top: 0.1rem;
+            width: 0.3rem;
+            height: 0.6rem;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    </style>
 </head>
-<body>
-  <div id="root"></div>
-  
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-    
-    // Simple SVG icon components (no external library needed!)
-    const BookOpen = ({ size = 24, className = "" }) => (
-      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-      </svg>
-    );
-    
-    const CheckCircle = ({ size = 24, className = "" }) => (
-      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M9 12l2 2 4-4"/>
-      </svg>
-    );
-    
-    const Circle = ({ size = 24, className = "" }) => (
-      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="12" cy="12" r="10"/>
-      </svg>
-    );
-    
-    const Star = ({ size = 24, className = "", fill = "none" }) => (
-      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-      </svg>
-    );
-    
-    const Edit2 = ({ size = 24, className = "" }) => (
-      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-      </svg>
-    );
-    
-    const BookMarked = ({ size = 24, className = "" }) => (
-      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        <path d="M10 2v8l3-3 3 3V2"/>
-      </svg>
-    );
-    
-    const Sparkles = ({ size = 24, className = "" }) => (
-      <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/>
-        <path d="M19 12l.75 2.25L22 15l-2.25.75L19 18l-.75-2.25L16 15l2.25-.75L19 12z"/>
-        <path d="M19 3l.5 1.5L21 5l-1.5.5L19 7l-.5-1.5L17 5l1.5-.5L19 3z"/>
-      </svg>
-    );
-    
-    function StudyTracker() {
-      useEffect(() => {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/service-worker.js').catch(() => {});
-        }
-      }, []);
-
-      const START_DATE = '2026-01-03';
-      
-      const allSubjects = [
-        { name: 'Assamese', priority: true },
-        { name: 'English', priority: false },
-        { name: 'Maths', priority: false },
-        { name: 'Elective', priority: false },
-        { name: 'Science', priority: false },
-        { name: 'Social Studies', priority: true }
-      ];
-
-      const motivationalQuotes = [
-        "Success is the sum of small efforts repeated day in and day out. Keep going! 🌟",
-        "Today's accomplishments were tomorrow's impossibilities. Well done! 💪",
-        "You're one day closer to your goal. Stay focused! 🎯",
-        "Every day is a new opportunity to get better. Great work today! ✨",
-        "Consistency is key. You showed up today - that's what matters! 🔥",
-        "Small progress is still progress. Be proud of yourself! 🌱",
-        "Your future self will thank you for the work you did today! 🚀",
-        "Education is the passport to the future. Keep stamping it! 📚",
-        "The expert in anything was once a beginner. You're getting there! 💫",
-        "Believe in yourself and all that you are. Tomorrow is another chance! 🌈"
-      ];
-
-      const getCurrentDay = () => {
-        const start = new Date(START_DATE);
-        const today = new Date();
-        const diffTime = today - start;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        return Math.min(Math.max(diffDays + 1, 1), 20);
-      };
-
-      const getCurrentDate = () => {
-        return new Date().toISOString().split('T')[0];
-      };
-
-      const [currentDay, setCurrentDay] = useState(getCurrentDay());
-      const [lastVisitDate, setLastVisitDate] = useState(() => {
-        return localStorage.getItem('lastVisitDate') || '';
-      });
-      const [showSelectionPopup, setShowSelectionPopup] = useState(false);
-      const [showEndDayPopup, setShowEndDayPopup] = useState(false);
-      const [showQuotePopup, setShowQuotePopup] = useState(false);
-      const [showReflectionsPopup, setShowReflectionsPopup] = useState(false);
-      const [selectedSubjects, setSelectedSubjects] = useState([]);
-      const [tempSelection, setTempSelection] = useState([]);
-      const [tasks, setTasks] = useState([]);
-      const [reflectionText, setReflectionText] = useState('');
-      const [currentQuote, setCurrentQuote] = useState('');
-      const [reflections, setReflections] = useState(() => {
-        const saved = localStorage.getItem('reflections');
-        return saved ? JSON.parse(saved) : [];
-      });
-
-      useEffect(() => {
-        const today = getCurrentDate();
-        if (today !== lastVisitDate) {
-          setLastVisitDate(today);
-          localStorage.setItem('lastVisitDate', today);
-          setShowSelectionPopup(true);
-          setSelectedSubjects([]);
-          setTasks([]);
-          setCurrentDay(getCurrentDay());
-        }
-      }, []);
-
-      const toggleTempSelection = (subjectName) => {
-        setTempSelection(prev => 
-          prev.includes(subjectName)
-            ? prev.filter(s => s !== subjectName)
-            : [...prev, subjectName]
-        );
-      };
-
-      const completeSelection = () => {
-        if (tempSelection.length === 0) return;
-        
-        const newSelectedSubjects = [...tempSelection];
-        const newTasks = tempSelection.map(name => ({
-          subject: allSubjects.find(s => s.name === name),
-          completed: false,
-          notes: ''
-        }));
-        
-        setSelectedSubjects(newSelectedSubjects);
-        setTasks(newTasks);
-        setTempSelection([]);
-        setShowSelectionPopup(false);
-      };
-
-      const openEditSelection = () => {
-        setTempSelection([...selectedSubjects]);
-        setShowSelectionPopup(true);
-      };
-
-      const toggleTask = (subjectName) => {
-        setTasks(prev => prev.map(t => 
-          t.subject.name === subjectName 
-            ? { ...t, completed: !t.completed }
-            : t
-        ));
-      };
-
-      const updateNotes = (subjectName, notes) => {
-        setTasks(prev => prev.map(t => 
-          t.subject.name === subjectName 
-            ? { ...t, notes }
-            : t
-        ));
-      };
-
-      const handleEndDay = () => {
-        setShowEndDayPopup(true);
-      };
-
-      const submitReflection = () => {
-        if (!reflectionText.trim()) return;
-
-        const newReflection = {
-          day: currentDay,
-          date: getCurrentDate(),
-          reflection: reflectionText,
-          subjects: tasks.map(t => ({
-            name: t.subject.name,
-            completed: t.completed,
-            notes: t.notes
-          }))
-        };
-
-        const updatedReflections = [...reflections, newReflection];
-        setReflections(updatedReflections);
-        localStorage.setItem('reflections', JSON.stringify(updatedReflections));
-
-        const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-        setCurrentQuote(randomQuote);
-        setShowEndDayPopup(false);
-        setShowQuotePopup(true);
-        setReflectionText('');
-      };
-
-      const closeQuoteAndReset = () => {
-        setShowQuotePopup(false);
-        const newDate = getCurrentDate();
-        const tomorrow = new Date(newDate);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
-        
-        setLastVisitDate(tomorrowStr);
-        localStorage.setItem('lastVisitDate', tomorrowStr);
-        setSelectedSubjects([]);
-        setTasks([]);
-        setCurrentDay(prev => Math.min(prev + 1, 20));
-        setShowSelectionPopup(true);
-      };
-
-      const formatDate = (dateStr) => {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { 
-          weekday: 'long',
-          month: 'long', 
-          day: 'numeric', 
-          year: 'numeric' 
-        });
-      };
-
-      const formatShortDate = (dateStr) => {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric', 
-          year: 'numeric' 
-        });
-      };
-
-      const completedCount = tasks.filter(t => t.completed).length;
-      const totalCount = tasks.length;
-
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-          {showSelectionPopup && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Select Today's Subjects</h2>
-                <p className="text-sm text-gray-600 mb-6">Choose which subjects you'll study today</p>
-                
-                <div className="space-y-3 mb-6">
-                  {allSubjects.map(subject => (
-                    <button
-                      key={subject.name}
-                      onClick={() => toggleTempSelection(subject.name)}
-                      className={`w-full p-4 rounded-lg border-2 transition-all flex items-center justify-between ${
-                        tempSelection.includes(subject.name)
-                          ? 'border-indigo-500 bg-indigo-50'
-                          : 'border-gray-200 hover:border-indigo-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        {tempSelection.includes(subject.name) ? (
-                          <CheckCircle size={24} className="text-indigo-600" />
-                        ) : (
-                          <Circle size={24} className="text-gray-400" />
-                        )}
-                        <span className="font-medium text-gray-800">{subject.name}</span>
-                      </div>
-                      {subject.priority && (
-                        <Star size={18} className="text-yellow-500" fill="currentColor" />
-                      )}
-                    </button>
-                  ))}
+<body class="bg-gray-50 min-h-screen p-4">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-3">
+                    <i class="bi bi-book-fill text-3xl text-blue-600"></i>
+                    <h1 class="text-2xl font-bold text-gray-800">Boards Exam Prep</h1>
                 </div>
-
-                <button
-                  onClick={completeSelection}
-                  disabled={tempSelection.length === 0}
-                  className={`w-full py-3 rounded-lg font-semibold transition-all ${
-                    tempSelection.length === 0
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  }`}
-                >
-                  Complete Selection ({tempSelection.length} subjects)
-                </button>
-              </div>
+                <div class="text-lg font-semibold text-gray-700">
+                    Day <span id="currentDay">1</span>/<span id="totalDays">20</span>
+                </div>
             </div>
-          )}
-
-          {showEndDayPopup && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                  <BookMarked size={28} className="text-indigo-600" />
-                  How Did Today Go?
-                </h2>
-                <p className="text-sm text-gray-600 mb-6">Reflect on your day before moving forward</p>
-                
-                <textarea
-                  value={reflectionText}
-                  onChange={(e) => setReflectionText(e.target.value)}
-                  placeholder="Write about your day... What went well? What was challenging? How do you feel about your progress?"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                  rows="6"
-                />
-
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={() => setShowEndDayPopup(false)}
-                    className="flex-1 py-3 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={submitReflection}
-                    disabled={!reflectionText.trim()}
-                    className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
-                      !reflectionText.trim()
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    }`}
-                  >
-                    Submit & End Day
-                  </button>
-                </div>
-              </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="dayProgress" class="bg-blue-600 h-3 rounded-full transition-all duration-300" style="width: 5%"></div>
             </div>
-          )}
-
-          {showQuotePopup && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-8 text-center">
-                <Sparkles size={48} className="text-yellow-500 mx-auto mb-4" />
-                <p className="text-xl text-gray-800 mb-6 leading-relaxed italic">
-                  "{currentQuote}"
-                </p>
-                <button
-                  onClick={closeQuoteAndReset}
-                  className="px-6 py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-all"
-                >
-                  Start Next Day
-                </button>
-              </div>
-            </div>
-          )}
-
-          {showReflectionsPopup && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-                <div className="p-6 border-b">
-                  <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <BookMarked size={28} className="text-indigo-600" />
-                    Past Reflections
-                  </h2>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto p-6">
-                  {reflections.length === 0 ? (
-                    <div className="text-center py-12 text-gray-400">
-                      <BookMarked size={64} className="mx-auto mb-4 opacity-50" />
-                      <p className="text-lg">No reflections yet</p>
-                      <p className="text-sm">Complete your first day to see reflections here</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      {[...reflections].reverse().map((ref, idx) => (
-                        <div key={idx} className="bg-gray-50 rounded-lg p-5 border-l-4 border-indigo-500">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h3 className="font-bold text-lg text-gray-800">Day {ref.day}</h3>
-                              <p className="text-sm text-gray-600">{formatShortDate(ref.date)}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="mb-3">
-                            <p className="text-sm font-semibold text-gray-700 mb-2">Subjects Studied:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {ref.subjects.map(subj => (
-                                <span
-                                  key={subj.name}
-                                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                    subj.completed
-                                      ? 'bg-green-100 text-green-700'
-                                      : 'bg-gray-200 text-gray-600'
-                                  }`}
-                                >
-                                  {subj.name} {subj.completed && '✓'}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <p className="text-sm font-semibold text-gray-700 mb-2">Reflection:</p>
-                            <p className="text-gray-700 whitespace-pre-wrap">{ref.reflection}</p>
-                          </div>
-                          
-                          {ref.subjects.some(s => s.notes) && (
-                            <div className="mt-3 pt-3 border-t">
-                              <p className="text-sm font-semibold text-gray-700 mb-2">Study Notes:</p>
-                              <div className="space-y-1">
-                                {ref.subjects.filter(s => s.notes).map(subj => (
-                                  <p key={subj.name} className="text-sm text-gray-600">
-                                    <span className="font-medium">{subj.name}:</span> {subj.notes}
-                                  </p>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="p-6 border-t">
-                  <button
-                    onClick={() => setShowReflectionsPopup(false)}
-                    className="w-full py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-all"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <BookOpen size={32} className="text-indigo-600" />
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Board Exam Prep</h1>
-                    <p className="text-sm text-gray-600">{formatDate(getCurrentDate())}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-gray-600">Day Progress</div>
-                  <div className="text-3xl font-bold text-indigo-600">
-                    {currentDay}<span className="text-xl text-gray-400">/20</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all"
-                    style={{ width: `${(currentDay / 20) * 100}%` }}
-                  />
-                </div>
-                <div className="flex justify-between mt-2 text-xs text-gray-500">
-                  <span>Day 1</span>
-                  <span>Day 20</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-semibold text-gray-800">Today's Study Tasks</h2>
-                  {totalCount > 0 && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      {completedCount} of {totalCount} completed
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  {tasks.length > 0 && (
-                    <button
-                      onClick={openEditSelection}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all flex items-center gap-2"
-                    >
-                      <Edit2 size={18} />
-                      Edit
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setShowReflectionsPopup(true)}
-                    className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-all flex items-center gap-2"
-                  >
-                    <BookMarked size={18} />
-                    Reflections
-                  </button>
-                </div>
-              </div>
-
-              {tasks.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">
-                  <Circle size={64} className="mx-auto mb-4 opacity-50" />
-                  <p className="text-lg">No subjects selected yet</p>
-                  <p className="text-sm">Select subjects to start your study session</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {tasks.map(task => (
-                    <div
-                      key={task.subject.name}
-                      className={`p-5 rounded-lg border-2 transition-all ${
-                        task.completed
-                          ? 'bg-green-50 border-green-200'
-                          : 'bg-white border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-start gap-4">
-                        <button
-                          onClick={() => toggleTask(task.subject.name)}
-                          className="mt-1 flex-shrink-0"
-                        >
-                          {task.completed ? (
-                            <CheckCircle size={28} className="text-green-600" />
-                          ) : (
-                            <Circle size={28} className="text-gray-400 hover:text-indigo-500" />
-                          )}
-                        </button>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className={`text-xl font-semibold ${
-                              task.completed ? 'text-green-700 line-through' : 'text-gray-800'
-                            }`}>
-                              {task.subject.name}
-                            </h3>
-                            {task.subject.priority && (
-                              <Star size={16} className="text-yellow-500" fill="currentColor" />
-                            )}
-                          </div>
-                          
-                          <textarea
-                            value={task.notes}
-                            onChange={(e) => updateNotes(task.subject.name, e.target.value)}
-                            placeholder="Add notes about what you studied..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
-                            rows="2"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {tasks.length > 0 && (
-                <div className="mt-6 pt-6 border-t">
-                  <button
-                    onClick={handleEndDay}
-                    className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
-                  >
-                    End Day & Reflect
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
-      );
-    }
 
-    ReactDOM.render(<StudyTracker />, document.getElementById('root'));
-  </script>
-</body>
-</html>
+        <!-- Subject Selection Section -->
+        <div class="bg-white rounded-lg shadow-md mb-4">
+            <div class="p-4 flex justify-between items-center cursor-pointer" onclick="toggleSubjectSection()">
+                <h2 class="text-xl font-semibold text-gray-800">Subject Selection</h2>
+                <button class="text-blue-600 hover:text-blue-800">
+                    <i class="bi bi-pencil-square text-xl"></i>
+                </button>
+            </div>
+            <div id="subjectSection" class="hidden p-4 pt-0">
+                <div class="space-y-3 mb-4">
+                    <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition">
+                        <input type="checkbox" id="sub-assamese" value="Assamese" class="subject-checkbox">
+                        <label for="sub-assamese" class="text-gray-700 cursor-pointer flex-1">Assamese</label>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition">
+                        <input type="checkbox" id="sub-english" value="English" class="subject-checkbox">
+                        <label for="sub-english" class="text-gray-700 cursor-pointer flex-1">English</label>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition">
+                        <input type="checkbox" id="sub-social" value="Social Studies" class="subject-checkbox">
+                        <label for="sub-social" class="text-gray-700 cursor-pointer flex-1">Social Studies</label>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition">
+                        <input type="checkbox" id="sub-science" value="Science" class="subject-checkbox">
+                        <label for="sub-science" class="text-gray-700 cursor-pointer flex-1">Science</label>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition">
+                        <input type="checkbox" id="sub-maths" value="Maths" class="subject-checkbox">
+                        <label for="sub-maths" class="text-gray-700 cursor-pointer flex-1">Maths</label>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition">
+                        <input type="checkbox" id="sub-elective" value="Elective" class="subject-checkbox">
+                        <label for="sub-elective" class="text-gray-700 cursor-pointer flex-1">Elective</label>
+                    </div>
+                </div>
+                <button onclick="completeSelection()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold">
+                    Complete Selection
+                </button>
+            </div>
+        </div>
+
+        <!-- Today's Task List -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Today's Task List</h2>
+            <div id="taskList" class="space-y-4 mb-4">
+                <p class="text-gray-500 text-center py-4">Please select subjects first</p>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-4">
+                <div id="taskProgress" class="bg-green-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p class="text-center text-sm text-gray-600 mt-2">
+                <span id="progressText">0%</span> Complete
+            </p>
+        </div>
+
+        <!-- End the Day Button -->
+        <button onclick="showEndDayPopup()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition shadow-md mb-4 text-lg font-semibold">
+            End the Day
+        </button>
+
+        <!-- Previous Days Section -->
+        <div class="bg-white rounded-lg shadow-md">
+            <div class="p-4 flex justify-between items-center cursor-pointer" onclick="togglePreviousDays()">
+                <h2 class="text-lg font-semibold text-gray-800">See Previous Days</h2>
+                <i id="prevDaysIcon" class="bi bi-chevron-down text-xl"></i>
+            </div>
+            <div id="previousDaysContent" class="hidden p-4 pt-0">
+                <div id="previousDaysList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Day Popup -->
+    <div id="endDayPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-800">How it went?</h3>
+                <button onclick="closeEndDayPopup()" class="text-gray-500 hover:text-gray-700">
+                    <i class="bi bi-x-lg text-2xl"></i>
+                </button>
+            </div>
+            <div class="mb-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-600">
+                <p id="dailyQuote" class="text-gray-700 italic"></p>
+            </div>
+            <textarea id="reflectionText" placeholder="Write your thoughts about today..." class="w-full border border-gray-300 rounded-lg p-3 mb-4 h-32 resize-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"></textarea>
+            <button onclick="submitEndDay()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">
+                Submit
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+            "Success is the sum of small efforts repeated day in and day out.",
+            "The expert in anything was once a beginner.",
+            "Study while others are sleeping; work while others are loafing.",
+            "Education is the passport to the future.",
+            "The beautiful thing about learning is that no one can take it away from you.",
+            "Don't watch the clock; do what it does. Keep going."
+        ];
+
+        let tdata = {};
+        let mdata = [];
+
+        function init() {
+            loadData();
+            updateUI();
+            loadPreviousDays();
+        }
+
+        function loadData() {
+            const today = new Date().toDateString();
+            tdata = JSON.parse(localStorage.getItem('tdata') || '{}');
+            mdata = JSON.parse(localStorage.getItem('mdata') || '[]');
+
+            if (tdata.date !== today) {
+                const newDay = Math.min((tdata.day || 0) + 1, 20);
+                tdata = {
+                    date: today,
+                    day: newDay,
+                    subjects: tdata.subjects || [],
+                    tasks: []
+                };
+                saveTData();
+            }
+        }
+
+        function saveTData() {
+            localStorage.setItem('tdata', JSON.stringify(tdata));
+        }
+
+        function updateUI() {
+            document.getElementById('currentDay').textContent = tdata.day || 1;
+            const progress = ((tdata.day || 1) / 20) * 100;
+            document.getElementById('dayProgress').style.width = progress + '%';
+
+            const checkboxes = document.querySelectorAll('#subjectSection input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = tdata.subjects.includes(cb.value);
+            });
+
+            renderTasks();
+            updateTaskProgress();
+        }
+
+        function toggleSubjectSection() {
+            const section = document.getElementById('subjectSection');
+            section.classList.toggle('hidden');
+        }
+
+        function completeSelection() {
+            const checkboxes = document.querySelectorAll('#subjectSection input[type="checkbox"]:checked');
+            tdata.subjects = Array.from(checkboxes).map(cb => cb.value);
+            
+            tdata.tasks = tdata.subjects.map(subject => ({
+                id: Date.now() + Math.random(),
+                subject: subject,
+                completed: false,
+                subtasks: []
+            }));
+
+            saveTData();
+            toggleSubjectSection();
+            renderTasks();
+            updateTaskProgress();
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            
+            if (!tdata.tasks || tdata.tasks.length === 0) {
+                taskList.innerHTML = '<p class="text-gray-500 text-center py-4">Please select subjects first</p>';
+                return;
+            }
+
+            taskList.innerHTML = tdata.tasks.map(task => `
+                <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                               onchange="toggleTask(${task.id})"
+                               class="custom-checkbox mt-1">
+                        <div class="flex-1">
+                            <label class="text-lg font-semibold text-gray-800 cursor-pointer ${task.completed ? 'line-through text-gray-500' : ''}">${task.subject}</label>
+                            <div class="mt-3 space-y-2" id="subtasks-${task.id}">
+                                ${task.subtasks.map(st => `
+                                    <div class="flex items-center gap-3 ml-4 p-2 rounded hover:bg-gray-50 transition">
+                                        <input type="checkbox" ${st.completed ? 'checked' : ''} 
+                                               onchange="toggleSubtask(${task.id}, ${st.id})"
+                                               class="custom-checkbox-sm">
+                                        <span class="text-gray-700 flex-1 ${st.completed ? 'line-through text-gray-500' : ''}">${st.name}</span>
+                                        <button onclick="deleteSubtask(${task.id}, ${st.id})" class="text-red-500 hover:text-red-700 p-1">
+                                            <i class="bi bi-trash text-sm"></i>
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button onclick="addSubtask(${task.id})" class="mt-3 ml-4 text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 font-medium">
+                                <i class="bi bi-plus-circle"></i> Add Subtask
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleTask(taskId) {
+            const task = tdata.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                
+                // If task is checked, check all subtasks
+                if (task.completed) {
+                    task.subtasks.forEach(st => st.completed = true);
+                }
+                
+                saveTData();
+                renderTasks();
+                updateTaskProgress();
+            }
+        }
+
+        function addSubtask(taskId) {
+            const name = prompt('Enter subtask name:');
+            if (name && name.trim()) {
+                const task = tdata.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.subtasks.push({
+                        id: Date.now() + Math.random(),
+                        name: name.trim(),
+                        completed: false
+                    });
+                    saveTData();
+                    renderTasks();
+                    updateTaskProgress();
+                }
+            }
+        }
+
+        function toggleSubtask(taskId, subtaskId) {
+            const task = tdata.tasks.find(t => t.id === taskId);
+            if (task) {
+                const subtask = task.subtasks.find(st => st.id === subtaskId);
+                if (subtask) {
+                    subtask.completed = !subtask.completed;
+                    
+                    // Check if all subtasks are completed
+                    const allSubtasksCompleted = task.subtasks.every(st => st.completed);
+                    
+                    // If all subtasks are completed, check the main task
+                    if (allSubtasksCompleted && task.subtasks.length > 0) {
+                        task.completed = true;
+                    }
+                    
+                    // If a subtask is unchecked, uncheck the main task
+                    if (!subtask.completed) {
+                        task.completed = false;
+                    }
+                    
+                    saveTData();
+                    renderTasks();
+                    updateTaskProgress();
+                }
+            }
+        }
+
+        function deleteSubtask(taskId, subtaskId) {
+            const task = tdata.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.subtasks = task.subtasks.filter(st => st.id !== subtaskId);
+                saveTData();
+                renderTasks();
+                updateTaskProgress();
+            }
+        }
+
+        function updateTaskProgress() {
+            if (!tdata.tasks || tdata.tasks.length === 0) {
+                document.getElementById('taskProgress').style.width = '0%';
+                document.getElementById('progressText').textContent = '0%';
+                return;
+            }
+
+            const totalSubjects = tdata.tasks.length;
+            const percentPerSubject = 100 / totalSubjects;
+            let totalProgress = 0;
+
+            tdata.tasks.forEach(task => {
+                if (task.subtasks.length === 0) {
+                    // No subtasks - main task counts as full subject progress
+                    if (task.completed) {
+                        totalProgress += percentPerSubject;
+                    }
+                } else {
+                    // Has subtasks - each subtask counts equally within this subject
+                    const percentPerSubtask = percentPerSubject / task.subtasks.length;
+                    task.subtasks.forEach(st => {
+                        if (st.completed) {
+                            totalProgress += percentPerSubtask;
+                        }
+                    });
+                }
+            });
+
+            const finalProgress = Math.round(totalProgress);
+            document.getElementById('taskProgress').style.width = finalProgress + '%';
+            document.getElementById('progressText').textContent = finalProgress + '%';
+        }
+
+        function showEndDayPopup() {
+            document.getElementById('endDayPopup').classList.remove('hidden');
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('dailyQuote').textContent = randomQuote;
+        }
+
+        function closeEndDayPopup() {
+            document.getElementById('endDayPopup').classList.add('hidden');
+            document.getElementById('reflectionText').value = '';
+        }
+
+        function submitEndDay() {
+            const reflection = document.getElementById('reflectionText').value;
+            const quote = document.getElementById('dailyQuote').textContent;
+
+            const progress = parseInt(document.getElementById('progressText').textContent);
+
+            const dayData = {
+                date: tdata.date,
+                day: tdata.day,
+                tasks: tdata.tasks.map(task => ({
+                    subject: task.subject,
+                    completed: task.completed,
+                    subtasks: task.subtasks
+                })),
+                progress: progress,
+                reflection: reflection,
+                quote: quote
+            };
+
+            mdata.push(dayData);
+            localStorage.setItem('mdata', JSON.stringify(mdata));
+
+            closeEndDayPopup();
+            loadPreviousDays();
+            alert('Day saved successfully!');
+        }
+
+        function togglePreviousDays() {
+            const content = document.getElementById('previousDaysContent');
+            const icon = document.getElementById('prevDaysIcon');
+            content.classList.toggle('hidden');
+            icon.classList.toggle('bi-chevron-down');
+            icon.classList.toggle('bi-chevron-up');
+        }
+
+        function loadPreviousDays() {
+            const container = document.getElementById('previousDaysList');
+            
+            if (mdata.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No previous days recorded yet</p>';
+                return;
+          
