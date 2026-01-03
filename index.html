@@ -467,4 +467,115 @@
                     <p className="text-sm text-gray-600 mt-1">
                       {completedCount} of {totalCount} completed
                     </p>
-         
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowReflectionsPopup(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-all"
+                  >
+                    <BookMarked size={18} />
+                    View Reflections
+                  </button>
+                  <button
+                    onClick={openEditSelection}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all"
+                  >
+                    <Edit2 size={18} />
+                    Edit
+                  </button>
+                </div>
+              </div>
+
+              {tasks.length === 0 ? (
+                <div className="text-center py-16">
+                  <Calendar className="mx-auto mb-4 text-gray-300" size={64} />
+                  <p className="text-gray-500 text-lg mb-2">No subjects selected yet</p>
+                  <p className="text-gray-400 text-sm mb-4">Click "Edit" to choose today's subjects</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {tasks.map(task => (
+                    <div 
+                      key={task.subject.name}
+                      className={`border-2 rounded-lg p-4 transition-all ${
+                        task.completed 
+                          ? 'border-green-300 bg-green-50' 
+                          : 'border-gray-200 hover:border-indigo-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <button
+                          onClick={() => toggleTask(task.subject.name)}
+                          className="flex-shrink-0"
+                        >
+                          {task.completed ? (
+                            <CheckCircle className="text-green-600" size={28} />
+                          ) : (
+                            <Circle className="text-gray-400 hover:text-indigo-600" size={28} />
+                          )}
+                        </button>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-lg font-semibold ${
+                              task.completed ? 'text-gray-500 line-through' : 'text-gray-800'
+                            }`}>
+                              {task.subject.name}
+                            </span>
+                            {task.subject.priority && (
+                              <Star className="text-yellow-500" size={16} fill="currentColor" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="ml-10">
+                        <textarea
+                          value={task.notes}
+                          onChange={(e) => updateNotes(task.subject.name, e.target.value)}
+                          placeholder="What will you study? (e.g., Chapter 4, Quadratic Equations)"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                          rows="2"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {totalCount > 0 && (
+                <div className="mt-6 pt-6 border-t">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Today's Progress</span>
+                    <span className="text-sm font-bold text-indigo-600">
+                      {Math.round((completedCount / totalCount) * 100)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all"
+                      style={{ width: `${(completedCount / totalCount) * 100}%` }}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleEndDay}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all"
+                  >
+                    <Clock size={20} />
+                    End Day & Reflect
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<StudyTracker />);
+  </script>
+</body>
+</html>
