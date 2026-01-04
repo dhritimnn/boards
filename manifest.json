@@ -3,7 +3,7 @@
   "short_name": "20 Days",
   "description": "Track your 20-day board exam preparation",
   "start_url": ".",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
   "orientation": "portrait",
