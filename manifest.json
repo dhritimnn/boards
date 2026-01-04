@@ -1,6 +1,6 @@
 {
-  "name": "Board Exam Study Tracker",
-  "short_name": "Study Tracker",
+  "name": "20 Days to Boards",
+  "short_name": "20 Days",
   "description": "Track your 20-day board exam preparation",
   "start_url": "/",
   "display": "standalone",
